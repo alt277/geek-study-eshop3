@@ -1,16 +1,30 @@
 package ru.geekbrains.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 import ru.geekbrains.persist.model.Picture;
 import ru.geekbrains.persist.model.PictureData;
 import ru.geekbrains.persist.repo.PictureRepository;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
 
+@Service                            // условие в Application.properties для созданмя бина
+@ConditionalOnProperty(name="picture.storage.type",havingValue="file")
 public class PictureServiceFileImpl implements PictureService{
 
-    @Value("S{picture.storage.path")
+    private static final Logger logger = LoggerFactory.getLogger(PictureServiceFileImpl.class);
+
+    @Value("${picture.storage.path}")
     private String storagePath;
 
     private final PictureRepository repository;
@@ -23,16 +37,39 @@ public class PictureServiceFileImpl implements PictureService{
     @Override
     public Optional<String> getPictureContentTypeById(long id) {
         return repository.findById(id)
+                .filter(picture -> picture.getPictureData().getFileName() !=null)
                 .map(Picture::getContentType);
     }
 
     @Override
     public Optional<byte[]> getPictureDataById(long id) {
-        return
+        return repository.findById(id)
+                .filter(picture -> picture.getPictureData().getFileName() !=null)
+                .map(picture -> Path.of(storagePath,picture.getPictureData().getFileName()))
+                .filter(Files::exists)
+                .map(path -> {
+                    try {
+                       return Files.readAllBytes(path);
+                    } catch (IOException ex){
+                        logger.error("Can't open picture file",ex);
+                        throw  new RuntimeException(ex);
+                    }
+                });
     }
 
     @Override
     public PictureData createPictureData(byte[] picture) {
-        return
+
+        String fileName = UUID.randomUUID().toString();
+        System.out.println( "fileName="+ fileName);
+        System.out.println( "storagePath="+ storagePath);
+        try (OutputStream os = Files.newOutputStream(Path.of(storagePath,fileName))) {
+            os.write(picture);
+        } catch (IOException ex){
+            logger.error("Can't create picture file",ex);
+            throw new RuntimeException(ex);
+        }
+        return new PictureData(fileName);
     }
+
 }
