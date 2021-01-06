@@ -3,6 +3,7 @@ package ru.geekbrains.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,12 +15,18 @@ import ru.geekbrains.controller.repr.ProductRepr;
 import ru.geekbrains.error.NotFoundException;
 import ru.geekbrains.persist.repo.BrandRepository;
 import ru.geekbrains.persist.repo.CategoryRepository;
+import ru.geekbrains.persist.repo.PictureRepository;
 import ru.geekbrains.service.ProductService;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 @Controller
 public class ProductsController {
-
+    @Value("${picture.storage.path}")
+    private String storagePath;
     private static final Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     private final ProductService productService;
@@ -27,13 +34,15 @@ public class ProductsController {
     private final CategoryRepository categoryRepository;
 
     private final BrandRepository brandRepository;
+   private final PictureRepository pictureRepository;
 
     @Autowired
     public ProductsController(ProductService productService, CategoryRepository categoryRepository,
-                              BrandRepository brandRepository) {
+                              BrandRepository brandRepository,PictureRepository pictureRepository) {
         this.productService = productService;
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
+        this.pictureRepository =pictureRepository;
     }
 
     @GetMapping("/products")
@@ -59,6 +68,21 @@ public class ProductsController {
         productService.deleteById(id);
         return "redirect:/products";
     }
+    @GetMapping("/product/{productId}/delete/picture/{pictureId}")
+    public String adminDeletePicture(Model model,
+                                     @PathVariable("productId") Long productId,
+                                     @PathVariable("pictureId") Long pictureId) throws IOException {
+        model.addAttribute("activePage", "Products");
+
+        String fileName = pictureRepository.findById(pictureId).get().getPictureData().getFileName();
+        Files.deleteIfExists(Paths.get(storagePath + "/" + fileName));
+
+        productService.findById(productId).get().getPictures().
+                remove(pictureRepository.findById(pictureId));
+
+        return "redirect:/product_form";
+    }
+
 
     @GetMapping("/product/create")
     public String adminCreateProduct(Model model) {

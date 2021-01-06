@@ -69,6 +69,10 @@
                     <div class="card-header">Picture</div>
                     <img class="card-img-bottom" th:src="@{/picture/{pictureId}(pictureId=${pict.id})}"
                          width="40%"/>
+                    <a class="btn btn-danger" th:href="@{/product/{productId}/delete/picture/{pictureId}(productId = ${product.id})
+                                                                                  (pictureId = ${pict.id}) }"><i class="fas fa-edit"></i></a>
+                    <a class="btn btn-danger" th:href="@{/picture/{pictureId}/delete (pictureId = ${pict.id})}"><i class="far fa-trash-alt"></i></a>
+
                 </div>
             </div>
         </div>

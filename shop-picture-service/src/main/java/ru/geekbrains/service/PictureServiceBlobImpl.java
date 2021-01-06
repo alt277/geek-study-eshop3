@@ -7,6 +7,8 @@ import ru.geekbrains.persist.model.Picture;
 import ru.geekbrains.persist.model.PictureData;
 import ru.geekbrains.persist.repo.PictureRepository;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -38,5 +40,22 @@ public class PictureServiceBlobImpl implements PictureService {
     @Override
     public PictureData createPictureData(byte[] picture) {
         return new PictureData(picture);
+    }
+
+    @Override
+    public void downloadProductPicture(Long pictureId, HttpServletResponse resp) throws IOException {
+
+        Optional<String> opt = getPictureContentTypeById(pictureId);
+        if (opt.isPresent()) {
+            resp.setContentType(opt.get());
+            resp.getOutputStream().write(getPictureDataById(pictureId).get());
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void deleteProductPicture(Long pictureId) throws IOException {
+
     }
 }
