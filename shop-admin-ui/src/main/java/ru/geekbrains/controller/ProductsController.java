@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.geekbrains.controller.repr.ProductRepr;
 import ru.geekbrains.error.NotFoundException;
+import ru.geekbrains.persist.model.Product;
 import ru.geekbrains.persist.repo.BrandRepository;
 import ru.geekbrains.persist.repo.CategoryRepository;
 import ru.geekbrains.persist.repo.PictureRepository;
@@ -68,19 +69,47 @@ public class ProductsController {
         productService.deleteById(id);
         return "redirect:/products";
     }
-    @GetMapping("/product/{productId}/delete/picture/{pictureId}")
-    public String adminDeletePicture(Model model,
-                                     @PathVariable("productId") Long productId,
+    @GetMapping("/product/delete/picture/{pictureId}")
+    public String adminDeletePicture(Model model, Product product,
                                      @PathVariable("pictureId") Long pictureId) throws IOException {
         model.addAttribute("activePage", "Products");
+
+        productService.findById(product.getId()).get().getPictures().
+                remove(pictureRepository.findById(pictureId));
 
         String fileName = pictureRepository.findById(pictureId).get().getPictureData().getFileName();
         Files.deleteIfExists(Paths.get(storagePath + "/" + fileName));
 
-        productService.findById(productId).get().getPictures().
-                remove(pictureRepository.findById(pictureId));
-
         return "redirect:/product_form";
+    }
+    @PostMapping("/product/delete/picture/{pictureId}")
+    public String adminDeletePicture2(Model model, ProductRepr productRepr,
+                                     @PathVariable("pictureId") Long pictureId) throws IOException {
+        model.addAttribute("activePage", "Products");
+
+        System.out.println("BEFORE METOD"+
+                "pictureId= "+pictureId+"\n"
+                +"pictureRepository.findById(pictureId)= "+pictureRepository.findById(pictureId)+"\n"
+                +"productService.findById(product.getId()).get()= "+ productService.findById(productRepr.getId()).get()+"\n"
+                +" productService.findById(product.getId()).get().getPictures()= "+ productService.findById(productRepr.getId()).get().getPictures()+"\n"
+                +"pictureRepository.findById(pictureId)= "+pictureRepository.findById(pictureId)+"\n"
+        );
+//        productService.findProductbyID (productRepr.getId() ).get().getPictures()
+//                .remove(pictureRepository.findById(pictureId));
+
+
+        String fileName = pictureRepository.findById(pictureId).get().getPictureData().getFileName();
+        Files.deleteIfExists(Paths.get(storagePath + "/" + fileName));
+
+        System.out.println("AFTER METOD"+
+                "pictureId= "+pictureId+"\n"
+                +"pictureRepository.findById(pictureId)= "+pictureRepository.findById(pictureId)+"\n"
+                +"productService.findById(product.getId()).get()= "+ productService.findById(productRepr.getId()).get()+"\n"
+                +" productService.findById(product.getId()).get().getPictures()= "+ productService.findById(productRepr.getId()).get().getPictures()+"\n"
+                +"pictureRepository.findById(pictureId)= "+pictureRepository.findById(pictureId)+"\n"
+        );
+
+        return "redirect:/products";
     }
 
 

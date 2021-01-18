@@ -18,5 +18,5 @@ public interface PictureService {
 
     public void downloadProductPicture( Long pictureId, HttpServletResponse resp) throws IOException;
 
-    public void deleteProductPicture(Long pictureId) throws IOException;
+    public void deleteProductPicture(Long pictureId) ;
 }

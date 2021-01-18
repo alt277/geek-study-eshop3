@@ -53,6 +53,12 @@ public class ProductsController {
     }
 
 
+    @GetMapping("/product_details")
+    public String ProductsDetails(Model model) {
 
+        model.addAttribute("activePage", "Products");
+        model.addAttribute("productDetail", productService.findById(1l));
+        return "product_details";
+    }
 
 }

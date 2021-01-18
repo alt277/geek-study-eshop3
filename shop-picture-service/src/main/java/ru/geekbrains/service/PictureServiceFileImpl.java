@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.geekbrains.persist.model.Picture;
 import ru.geekbrains.persist.model.PictureData;
 import ru.geekbrains.persist.repo.PictureRepository;
@@ -28,23 +29,23 @@ public class PictureServiceFileImpl implements PictureService {
     @Value("${picture.storage.path}")
     private String storagePath;
 
-    private final PictureRepository repository;
+    private final PictureRepository pictureRepository;
 
     @Autowired
     public PictureServiceFileImpl(PictureRepository repository) {
-        this.repository = repository;
+        this.pictureRepository = repository;
     }
 
     @Override
     public Optional<String> getPictureContentTypeById(long id) {
-        return repository.findById(id)
+        return pictureRepository.findById(id)
                 .filter(picture -> picture.getPictureData().getFileName() != null)
                 .map(Picture::getContentType);
     }
 
     @Override
     public Optional<byte[]> getPictureDataById(long id) {
-        return repository.findById(id)
+        return pictureRepository.findById(id)
                 .filter(picture -> picture.getPictureData().getFileName() != null)
                 .map(picture -> Path.of(storagePath, picture.getPictureData().getFileName()))
                 .filter(Files::exists)
@@ -73,7 +74,7 @@ public class PictureServiceFileImpl implements PictureService {
         return new PictureData(fileName);
     }
 
-    public void downloadProductPicture(Long pictureId, HttpServletResponse resp) throws IOException {
+    public void downloadProductPicture( Long pictureId, HttpServletResponse resp) throws IOException {
         logger.info("Downloading picture with id: {}", pictureId);
 
         Optional<String> opt = getPictureContentTypeById(pictureId);
@@ -85,12 +86,25 @@ public class PictureServiceFileImpl implements PictureService {
         }
     }
 
-    public void deleteProductPicture(Long pictureId) throws IOException {
+    @Override
+    @Transactional
+    public void deleteProductPicture(Long pictureId)  {
+//        String fileName = pictureRepository.findById(pictureId).get().getPictureData().getFileName();
+//        Files.deleteIfExists(Paths.get(storagePath + "/" + fileName));
+//        System.out.println("Внутри  метода DELETE ");
+//        System.out.println("fileName= " + fileName);
+        Optional<Picture> opt = pictureRepository.findById(pictureId);
+        if (opt.isPresent()) {
+            Picture picture = opt.get();
+            try {
+                Files.delete(Path.of(storagePath, picture.getPictureData().getFileName()));
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
+            }
+            pictureRepository.delete(picture);
+        }
 
-        String fileName = repository.findById(pictureId).get().getPictureData().getFileName();
-        Files.deleteIfExists(Paths.get(storagePath + "/" + fileName));
-        System.out.println("Внутри  метода DELETE ");
-        System.out.println("fileName= " + fileName);
     }
+
 
 }

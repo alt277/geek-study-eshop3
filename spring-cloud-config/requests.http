@@ -1,0 +1,14 @@
+GET http://localhost:8888/config/application.properties
+
+# путь к файлу настроек в репозитории
+# /{label}/{application}-{profile}.properties
+
+# /{application}/{profile}[/{label}]
+# /{application}-{profile}.yml
+# /{label}/{application}-{profile}.yml
+# /{application}-{profile}.properties
+# /{label}/{application}-{profile}.properties
+
+###
+
+GET http://localhost:8888/config/shop-picture-service-app.properties

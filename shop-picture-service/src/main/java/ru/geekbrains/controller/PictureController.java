@@ -42,7 +42,7 @@ public class PictureController {
     public void downloadProductPicture(@PathVariable("pictureId") Long pictureId, HttpServletResponse resp) throws IOException {
         logger.info("Downloading picture with id: {}", pictureId);
 
-      pictureService.downloadProductPicture(pictureId,resp);
+      pictureService.downloadProductPicture(pictureId, resp);
     }
 
     @GetMapping("/{pictureId}/delete")

@@ -3,6 +3,7 @@ package ru.geekbrains.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.geekbrains.persist.model.Picture;
 import ru.geekbrains.persist.model.PictureData;
 import ru.geekbrains.persist.repo.PictureRepository;
@@ -55,7 +56,9 @@ public class PictureServiceBlobImpl implements PictureService {
     }
 
     @Override
-    public void deleteProductPicture(Long pictureId) throws IOException {
+    @Transactional
+    public void deleteProductPicture(Long pictureId)  {
+        repository.deleteById(pictureId);
 
     }
 }
