@@ -19,7 +19,7 @@ public class PictureData {
     private byte[] data;
 
     @Column(name = "file_name")
-    private String filemame;
+    private String fileName;
 
     public PictureData() {
     }
@@ -28,8 +28,8 @@ public class PictureData {
         this.data = data;
     }
 
-    public PictureData(String filemame) {
-        this.filemame = filemame;
+    public PictureData(String fileName) {
+        this.fileName = fileName;
     }
 
     public Long getId() {
@@ -48,12 +48,11 @@ public class PictureData {
         this.data = data;
     }
 
-    public String getFilemame() {
-        return filemame;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setFilemame(String filemame) {
-        this.filemame = filemame;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
-
 }
