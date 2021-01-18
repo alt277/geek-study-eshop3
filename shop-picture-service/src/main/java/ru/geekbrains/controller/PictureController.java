@@ -26,16 +26,30 @@ public class PictureController {
         this.pictureService = pictureService;
     }
 
-    @GetMapping("/{pictureId}")
+//    @GetMapping("/{pictureId}")
+//    public void downloadProductPicture(@PathVariable("pictureId") Long pictureId, HttpServletResponse resp) throws IOException {
+//        logger.info("Downloading picture with id: {}", pictureId);
+//
+//        Optional<String> opt = pictureService.getPictureContentTypeById(pictureId);
+//        if (opt.isPresent()) {
+//            resp.setContentType(opt.get());
+//            resp.getOutputStream().write(pictureService.getPictureDataById(pictureId).get());
+//        } else {
+//            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//        }
+//    }
+        @GetMapping("/{pictureId}")
     public void downloadProductPicture(@PathVariable("pictureId") Long pictureId, HttpServletResponse resp) throws IOException {
         logger.info("Downloading picture with id: {}", pictureId);
 
-        Optional<String> opt = pictureService.getPictureContentTypeById(pictureId);
-        if (opt.isPresent()) {
-            resp.setContentType(opt.get());
-            resp.getOutputStream().write(pictureService.getPictureDataById(pictureId).get());
-        } else {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        }
+      pictureService.downloadProductPicture(pictureId, resp);
+    }
+
+    @GetMapping("/{pictureId}/delete")
+    public String deleteProductPicture(@PathVariable("pictureId") Long pictureId) throws IOException {
+        logger.info("Deleting picture with id: {}", pictureId);
+        pictureService.deleteProductPicture(pictureId );
+//        @{/picture/{pictureId}/delete (pictureId = ${pict.id})}
+        return "redirect:/product/{id}/edit (pictureId = ${pict.id}";
     }
 }

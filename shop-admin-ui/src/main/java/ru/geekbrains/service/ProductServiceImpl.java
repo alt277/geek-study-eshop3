@@ -79,9 +79,10 @@ public class ProductServiceImpl implements ProductService, Serializable {
                         pictureService.createPictureData(newPicture.getBytes()),
                         product
                 ));
+
             }
         }
-
         productRepository.save(product);
     }
+
 }

@@ -3,10 +3,13 @@ package ru.geekbrains.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.geekbrains.persist.model.Picture;
 import ru.geekbrains.persist.model.PictureData;
 import ru.geekbrains.persist.repo.PictureRepository;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -38,5 +41,24 @@ public class PictureServiceBlobImpl implements PictureService {
     @Override
     public PictureData createPictureData(byte[] picture) {
         return new PictureData(picture);
+    }
+
+    @Override
+    public void downloadProductPicture(Long pictureId, HttpServletResponse resp) throws IOException {
+
+        Optional<String> opt = getPictureContentTypeById(pictureId);
+        if (opt.isPresent()) {
+            resp.setContentType(opt.get());
+            resp.getOutputStream().write(getPictureDataById(pictureId).get());
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteProductPicture(Long pictureId)  {
+        repository.deleteById(pictureId);
+
     }
 }

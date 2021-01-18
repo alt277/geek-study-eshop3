@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+>
 
 <head th:replace="fragments/header :: head"></head>
 
@@ -63,15 +63,27 @@
             </div>
         </form>
 
-        <div class="container-fluid mb-4">
+
+        <div class=container-fluid mb-4>
             <div class="card-columns" style="column-count: 5">
-                <div class="card" th:each="pict : ${product.pictures}">
-                    <div class="card-header">Picture</div>
-                    <img class="card-img-bottom" th:src="@{/picture/{pictureId}(pictureId=${pict.id})}"
-                         width="40%"/>
-                </div>
+                <div class="card"   th:each="pict : ${product.pictures}">
+                <img class="card-img-bottom" th:src="@{/picture/{pictureId}(pictureId=${pict.id})}"
+                     width="40%"/>
+                <form th:object="${product}" method="post"
+                      th:action="@{/product/delete/picture/{pictureId}(pictureId = ${pict.id}) }"
+                      enctype="multipart/form-data">
+                    <input th:type="hidden" th:field="*{id}">
+<!--                    <input th:type="hidden" th:field="*{pict.id}">-->
+                    <a class="card-footer bg-white">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="far fa-trash-alt"></i>
+                        </button>
+                    </a>
+                </form>
+            </div>
             </div>
         </div>
+
 
     </div>
 </div>
